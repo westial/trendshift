@@ -1,8 +1,8 @@
 TrendShift
 ==========
 
-TrendShift is a builder library that appends some trend related cumulative 
-calculation information about a column onto given pandas DataFrame.
+TrendShift is a builder-like library that appends some trend aggregations about 
+onto a given pandas DataFrame.
 
 In the following image the blue line, with the value on the right side, draws 
 the EUR/USD price along a few hours and the red line, with the value on the left,
