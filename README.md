@@ -10,6 +10,12 @@ draws the difference between every price movement, the trends.
 
 ![https://westial.com/eurusdtrends.png](https://westial.com/eurusdtrends.png)
 
+## Install ##
+
+```
+pip install trendshift
+```
+
 ## Usage ##
 
 The following example implementation builds all the available TrendShift 
