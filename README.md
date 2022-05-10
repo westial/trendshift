@@ -8,7 +8,7 @@ In the following image the blue line, with the value on the right side, draws
 the EUR/USD price along a few hours and the red line, with the value on the left,
 draws the difference between every price movement, the trends.
 
-![doc/eurusdtrends.png](doc/eurusdtrends.png)
+![https://westial.com/eurusdtrends.png](https://westial.com/eurusdtrends.png)
 
 ## Usage ##
 
