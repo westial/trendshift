@@ -55,3 +55,8 @@ Feature: Trend shift reporter
     Then I get a new column with the simple moving average
     Then I get a new column with the total difference in the first trend step and other steps to null
     Then I get a new column with the total number of steps in the first trend step and other steps to null
+
+  Scenario: It executes multiple calculations over all trends over a massive dataframe
+    Given a massive dataframe
+    When I ask for the everything from every trend
+    Then I get the exact values results

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from behave import *
 from pandas import DataFrame
 
@@ -49,8 +50,8 @@ def step_impl(context):
 
 @when("I ask for the contiguous trend sums")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_sum()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_sum() \
         .build()
 
 
@@ -64,8 +65,8 @@ def step_impl(context):
 
 @when("I ask to number every shift step within a trend")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_numbered_steps()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_numbered_steps() \
         .build()
 
 
@@ -79,8 +80,8 @@ def step_impl(context):
 
 @when("I ask for the simple moving average for every trend")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_simple_moving_avg()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_simple_moving_avg() \
         .build()
 
 
@@ -94,12 +95,13 @@ def step_impl(context):
 
 @when("I ask for the total difference from every trend")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_difference_by_trend()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_difference_by_trend() \
         .build()
 
 
-@then("I get a new column with the total difference in the first trend step and other steps to null")
+@then(
+    "I get a new column with the total difference in the first trend step and other steps to null")
 def step_impl(context):
     assert np.array_equal(
         np.array(context.expected_total_differences).astype(int),
@@ -109,8 +111,8 @@ def step_impl(context):
 
 @when("I ask for the total steps from every trend")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_steps_by_trend()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_steps_by_trend() \
         .build()
 
 
@@ -125,19 +127,19 @@ def step_impl(context):
 
 @when("I ask for the everything from every trend")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_sum()\
-        .with_numbered_steps()\
-        .with_simple_moving_avg()\
-        .with_steps_by_trend()\
-        .with_difference_by_trend()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_sum() \
+        .with_numbered_steps() \
+        .with_simple_moving_avg() \
+        .with_steps_by_trend() \
+        .with_difference_by_trend() \
         .build()
 
 
 @when("I ask for anything in place")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples", in_place=True)\
-        .with_steps_by_trend()\
+    context.result = TrendShift(context.data_frame, "samples", in_place=True) \
+        .with_steps_by_trend() \
         .build()
 
 
@@ -148,11 +150,41 @@ def step_impl(context):
 
 @when("I ask for anything not in place")
 def step_impl(context):
-    context.result = TrendShift(context.data_frame, "samples")\
-        .with_steps_by_trend()\
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_steps_by_trend() \
         .build()
 
 
 @then("it transforms a copy of the input dataframe")
 def step_impl(context):
     assert context.data_frame is not context.result
+
+
+@given("a massive dataframe")
+def step_impl(context):
+    data_frame = pd.read_csv(
+        "tests/sample/histdata_EURUSD_M1_202204.csv",
+        sep=";",
+        index_col=0,
+        parse_dates=True,
+        names=['date', 'open', 'high', 'low', 'samples', 'volume']
+    ).sort_index()
+    context.data_frame = data_frame[['samples']]
+
+
+def assert_all_columns_sum_the_same_from(df1, df2):
+    sum1 = df1.sum()
+    sum2 = df2.sum()
+    np.testing.assert_almost_equal(sum1["samples"], sum2["samples"], decimal=5)
+    np.testing.assert_almost_equal(sum1["trends_sum"], sum2["trends_sum"], decimal=5)
+    np.testing.assert_almost_equal(sum1["step_number"], sum2["step_number"], decimal=5)
+    np.testing.assert_almost_equal(sum1["simple_moving_avg"], sum2["simple_moving_avg"], decimal=5)
+    np.testing.assert_almost_equal(sum1["trend_difference"], sum2["trend_difference"], decimal=5)
+    np.testing.assert_almost_equal(sum1["trend_steps"], sum2["trend_steps"], decimal=5)
+
+
+@then("I get the exact values results")
+def step_impl(context):
+    df = context.result
+    expected = pd.read_csv("tests/sample/histdata_EURUSD_M1_202204_expected.csv")
+    assert_all_columns_sum_the_same_from(df, expected)

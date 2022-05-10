@@ -1,7 +1,7 @@
 import numpy as np
 from pandas import DataFrame, Series
 
-from src.trendshift.cache.pandascache import pd_cache
+from .cache.pandascache import pd_cache
 
 
 class TrendShift:
@@ -132,15 +132,15 @@ class TrendShift:
     @pd_cache
     def __calculate_sma_from(cls, a_series: Series):
         column_clone = a_series.copy()
-        up_speed = cls.__sma_from(
+        up_sma = cls.__sma_from(
             cls.__sum_ascending_from(column_clone),
             cls.__number_ascending_from(column_clone))
-        down_speed = cls.__sma_from(
+        down_sma = cls.__sma_from(
             cls.__sum_descending_from(column_clone),
             cls.__number_descending_from(column_clone))
         column_clone.replace([np.nan, np.any], 0, inplace=True)
-        column_clone.update(up_speed)
-        column_clone.update(down_speed)
+        column_clone.update(up_sma)
+        column_clone.update(down_sma)
         return column_clone
 
     @classmethod
@@ -211,21 +211,20 @@ class TrendShift:
         cumulative_sum = a_series.cumsum().fillna(method='pad')
         reset = -cumulative_sum[a_series.isnull()].diff().fillna(
             cumulative_sum)
-        result = a_series.where(
-            a_series.notnull(), reset).cumsum()
-        return result
+        result = a_series.where(a_series.notnull(), reset).cumsum()
+        return result[0 != result]
 
     @classmethod
     @pd_cache
     def __ascending_trends_from(cls, a_series: Series):
-        return a_series[a_series > 0]
+        return a_series.mask(a_series <= 0)
 
     @classmethod
     @pd_cache
     def __descending_trends_from(cls, a_series: Series):
-        return a_series[a_series < 0]
+        return a_series.mask(a_series >= 0)
 
     @classmethod
     @pd_cache
     def __sma_from(cls, distance, steps_count):
-        return (distance / steps_count).replace([np.nan, np.inf, -np.inf], 0)
+        return distance / steps_count
