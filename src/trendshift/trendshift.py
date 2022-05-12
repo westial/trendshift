@@ -16,6 +16,10 @@ class TrendShift:
     Most of the member functions are decorated with a result cache to avoid the
     same operation onto the same data twice.
     """
+
+    # The precision decimals to take in account when comparing float numbers.
+    PRECISION_DECIMALS = 10
+
     def __init__(self, df: DataFrame, target_column: str, in_place=False):
         self.__df = df if in_place else df.copy()
         self.__target_diff = df[target_column].diff()
@@ -209,10 +213,9 @@ class TrendShift:
     @pd_cache
     def __sum_consecutive_from(cls, a_series):
         cumulative_sum = a_series.cumsum().fillna(method='pad')
-        reset = -cumulative_sum[a_series.isnull()].diff().fillna(
-            cumulative_sum)
+        reset = -cumulative_sum[a_series.isnull()].diff().fillna(cumulative_sum)
         result = a_series.where(a_series.notnull(), reset).cumsum()
-        return result[0 != result]
+        return result[0 != result.round(decimals=cls.PRECISION_DECIMALS)]
 
     @classmethod
     @pd_cache

@@ -162,14 +162,10 @@ def step_impl(context):
 
 @given("a massive dataframe")
 def step_impl(context):
-    data_frame = pd.read_csv(
-        "tests/sample/histdata_EURUSD_M1_202204.csv",
-        sep=";",
-        index_col=0,
-        parse_dates=True,
-        names=['date', 'open', 'high', 'low', 'samples', 'volume']
-    ).sort_index()
-    context.data_frame = data_frame[['samples']]
+    df = pd.read_parquet("tests/sample/live15m.parquet").sort_index()
+    df = df.loc[~df.index.duplicated(), :]
+    df['samples'] = df['close']
+    context.data_frame = df[['samples']]
 
 
 def assert_all_columns_sum_the_same_from(df1, df2):
@@ -186,5 +182,5 @@ def assert_all_columns_sum_the_same_from(df1, df2):
 @then("I get the exact values results")
 def step_impl(context):
     df = context.result
-    expected = pd.read_csv("tests/sample/histdata_EURUSD_M1_202204_expected.csv")
+    expected = pd.read_parquet("tests/sample/live15m_expected.parquet")
     assert_all_columns_sum_the_same_from(df, expected)
