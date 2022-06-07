@@ -184,3 +184,26 @@ def step_impl(context):
     df = context.result
     expected = pd.read_parquet("tests/sample/live15m_expected.parquet")
     assert_all_columns_sum_the_same_from(df, expected)
+
+
+@given('an noisy shift with a series of values as "{raw_values}"')
+def step_impl(context, raw_values: str):
+    context.data_frame_values = [int(value) for value in raw_values.split(" ")]
+    context.data_frame = __create_data_frame_with_diff(
+        context.data_frame_values)
+
+
+@when("I ask for the total difference from every trend with a smooth level of {:d}")
+def step_impl(context, smooth):
+    context.result = TrendShift(context.data_frame, "samples", smooth=smooth) \
+        .with_difference_by_trend() \
+        .build()
+
+
+@then("I get a total difference with one only upward shift")
+def step_impl(context):
+    assert 1 == len(context.result["trend_difference"].dropna())
+    np.testing.assert_almost_equal(
+        2.33333,
+        context.result["trend_difference"][3],
+        decimal=5)

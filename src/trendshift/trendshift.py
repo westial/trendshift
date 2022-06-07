@@ -20,14 +20,22 @@ class TrendShift:
     # The precision decimals to take in account when comparing float numbers.
     PRECISION_DECIMALS = 10
 
-    def __init__(self, df: DataFrame, target_column: str, in_place=False):
+    def __init__(self, df: DataFrame, target_column: str,
+                 in_place=False, smooth: int = None):
         self.__df = df if in_place else df.copy()
-        self.__target_diff = df[target_column].diff()
+        self.__target_diff = self.__create_target_diff(df, target_column, smooth)
         self.__sum = False
         self.__numbered_steps = False
         self.__sma = False
         self.__diff_by_trend = False
         self.__steps_by_trend = False
+
+    @classmethod
+    def __create_target_diff(cls, df, column_name, smooth):
+        column = df[column_name]
+        if None is not smooth:
+            column = column.rolling(window=smooth).mean()
+        return column.diff()
 
     def with_numbered_steps(self):
         """

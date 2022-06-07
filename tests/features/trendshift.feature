@@ -60,3 +60,8 @@ Feature: Trend shift reporter
     Given a massive dataframe
     When I ask for the everything from every trend
     Then I get the exact values results
+
+  Scenario: It finds the trends from a smooth input
+    Given an noisy shift with a series of values as "1 3 5 4 7"
+    When I ask for the total difference from every trend with a smooth level of 3
+    Then I get a total difference with one only upward shift
