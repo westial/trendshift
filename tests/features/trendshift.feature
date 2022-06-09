@@ -61,6 +61,11 @@ Feature: Trend shift reporter
     When I ask for the everything from every trend
     Then I get the exact values results
 
+  Scenario: Step number column is an integer number from 0 on
+    Given a massive dataframe where a step number bug has been detected
+    When I ask for the everything from every trend
+    Then I get integers only in the step number column
+
   Scenario: It finds the trends from a smooth input
     Given an noisy shift with a series of values as "1 3 5 4 7"
     When I ask for the total difference from every trend with a smooth level of 3

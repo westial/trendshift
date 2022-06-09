@@ -158,15 +158,19 @@ class TrendShift:
     @classmethod
     @pd_cache
     def __number_steps_from(cls, a_series: Series):
-        column_clone = a_series.copy()
+        column_clone = cls.__reset(a_series.copy())
         column_clone.update(cls.__number_ascending_from(a_series))
         column_clone.update(cls.__number_descending_from(a_series))
         return column_clone
 
     @classmethod
+    def __reset(cls, a_series):
+        return a_series.where(((a_series == 0) | a_series.isnull()), 0)
+
+    @classmethod
     @pd_cache
     def __sum_steps_from(cls, a_series: Series):
-        column_clone = a_series.copy()
+        column_clone = cls.__reset(a_series.copy())
         up_sum = cls.__sum_ascending_from(a_series)
         down_sum = cls.__sum_descending_from(a_series)
         column_clone.update(up_sum)

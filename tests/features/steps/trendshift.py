@@ -207,3 +207,19 @@ def step_impl(context):
         2.33333,
         context.result["trend_difference"][3],
         decimal=5)
+
+
+@given("a massive dataframe where a step number bug has been detected")
+def step_impl(context):
+    df = pd.read_parquet("tests/sample/live15mupdated1m_stepnumberbug.parquet").sort_index()
+    df = df.loc[~df.index.duplicated(), :]
+    df['samples'] = df['close']
+    context.data_frame = df[['samples']]
+
+
+@then("I get integers only in the step number column")
+def step_impl(context):
+    step_number_values = context.result["step_number"].dropna()
+    np.array_equal(
+        step_number_values,
+        step_number_values.astype(int))
