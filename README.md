@@ -47,6 +47,8 @@ the following data set. "target_column" values are the original ones.
 | 7   | 17            |-4.0      |2.0        |-2.0               |                |           |
 | 8   | 10            |-11.0     |3.0        |-3.6666666666666665|                |           |
 
+More information within the main interface [src/trendshift/trendshift.py](src/trendshift/trendshift.py)
+
 ## Concepts ##
 
 ### Trend ###
@@ -94,8 +96,6 @@ value is placed in the first *Step* only.
 
 Total number of *Step* in a *Shift*. This value is placed in the first *Step*
 only.
-
-###  
 
 ## Test ##
 

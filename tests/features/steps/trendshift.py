@@ -186,7 +186,7 @@ def step_impl(context):
     assert_all_columns_sum_the_same_from(df, expected)
 
 
-@given('an noisy shift with a series of values as "{raw_values}"')
+@given('a noisy shift with a series of values as "{raw_values}"')
 def step_impl(context, raw_values: str):
     context.data_frame_values = [int(value) for value in raw_values.split(" ")]
     context.data_frame = __create_data_frame_with_diff(
@@ -200,12 +200,12 @@ def step_impl(context, smooth):
         .build()
 
 
-@then("I get a total difference with one only upward shift")
-def step_impl(context):
-    assert 1 == len(context.result["trend_difference"].dropna())
+@then("I get a total difference of {:f} with {:d} upward shifts")
+def step_impl(context, expected_diff, expected_steps):
+    assert expected_steps == len(context.result["trend_difference"].dropna())
     np.testing.assert_almost_equal(
-        2.33333,
-        context.result["trend_difference"][3],
+        expected_diff,
+        context.result["trend_difference"][4],
         decimal=5)
 
 
@@ -223,3 +223,11 @@ def step_impl(context):
     np.array_equal(
         step_number_values,
         step_number_values.astype(int))
+
+
+@when("I ask for the total steps and difference from every trend with a step difference of {:d}")
+def step_impl(context, periods):
+    context.result = TrendShift(context.data_frame, "samples", diff_periods=periods) \
+        .with_difference_by_trend()\
+        .with_steps_by_trend()\
+        .build()

@@ -67,6 +67,11 @@ Feature: Trend shift reporter
     Then I get integers only in the step number column
 
   Scenario: It finds the trends from a smooth input
-    Given an noisy shift with a series of values as "1 3 5 4 7"
-    When I ask for the total difference from every trend with a smooth level of 3
-    Then I get a total difference with one only upward shift
+    Given a noisy shift with a series of values as "1 3 5 4 7"
+    When I ask for the total difference from every trend with a smooth level of 4
+    Then I get a total difference of 1.5 with 1 upward shifts
+
+  Scenario: It finds the trends from a longer steps back value difference
+    Given a noisy shift with a series of values as "1 2 2 2 4"
+    When I ask for the total steps and difference from every trend with a step difference of 4
+    Then I get a total difference of 3.0 with 1 upward shifts

@@ -20,10 +20,26 @@ class TrendShift:
     # The precision decimals to take in account when comparing float numbers.
     PRECISION_DECIMALS = 10
 
-    def __init__(self, df: DataFrame, target_column: str,
-                 in_place=False, smooth: int = None):
+    def __init__(self, df: DataFrame, target_column: str, in_place=False,
+                 smooth: int = None, diff_periods=1):
+        """
+        TrendShift constructor. All calculations are based on the difference
+        between steps along the target column.
+        :param diff_periods:
+        :param df: input dataframe
+        :param target_column: target column in the dataframe
+        :param in_place: whether create or not the new columns with the trend
+        information.
+        :param smooth: level of smoothness of the difference between steps.
+        The smooth is applied by a moving average calculation and this value
+        is the number of steps within the window.
+        :param diff_periods: number of steps back to calculate the difference
+        between steps. 1 by default means the difference is calculated between
+        the current step and the contiguous back one.
+        """
         self.__df = df if in_place else df.copy()
-        self.__target_diff = self.__create_target_diff(df, target_column, smooth)
+        self.__target_diff = self.__create_target_diff(
+            df, target_column, smooth, diff_periods)
         self.__sum = False
         self.__numbered_steps = False
         self.__sma = False
@@ -31,11 +47,11 @@ class TrendShift:
         self.__steps_by_trend = False
 
     @classmethod
-    def __create_target_diff(cls, df, column_name, smooth):
+    def __create_target_diff(cls, df, column_name, smooth, periods):
         column = df[column_name]
         if None is not smooth:
             column = column.rolling(window=smooth).mean()
-        return column.diff()
+        return column.diff(periods)
 
     def with_numbered_steps(self):
         """
