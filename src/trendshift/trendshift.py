@@ -1,8 +1,6 @@
 import numpy as np
 from pandas import DataFrame, Series
 
-from .cache.pandascache import pd_cache
-
 
 class TrendShift:
     """
@@ -148,7 +146,6 @@ class TrendShift:
         ).sort_index(ascending=True)
 
     @classmethod
-    @pd_cache
     def __create_total_column(cls, a_series: Series, callback: callable):
         sandbox = DataFrame(index=a_series.index)
         sandbox["count"] = cls.__number_steps_from(a_series)
@@ -157,7 +154,6 @@ class TrendShift:
         return sandbox["reversed"]
 
     @classmethod
-    @pd_cache
     def __calculate_sma_from(cls, a_series: Series):
         column_clone = a_series.copy()
         up_sma = cls.__sma_from(
@@ -172,7 +168,6 @@ class TrendShift:
         return column_clone
 
     @classmethod
-    @pd_cache
     def __number_steps_from(cls, a_series: Series):
         column_clone = cls.__reset(a_series.copy())
         column_clone.update(cls.__number_ascending_from(a_series))
@@ -184,7 +179,6 @@ class TrendShift:
         return a_series.where(((a_series == 0) | a_series.isnull()), 0)
 
     @classmethod
-    @pd_cache
     def __sum_steps_from(cls, a_series: Series):
         column_clone = cls.__reset(a_series.copy())
         up_sum = cls.__sum_ascending_from(a_series)
@@ -194,7 +188,6 @@ class TrendShift:
         return column_clone
 
     @classmethod
-    @pd_cache
     def __set_not_null_to_1_from(cls, a_series: Series):
         """
         It sets any not null value to 1 and everything else to null
@@ -202,43 +195,36 @@ class TrendShift:
         return a_series.notna().astype(int).replace(0, np.nan)
 
     @classmethod
-    @pd_cache
     def __set_ascending_to_1_from(cls, a_series: Series):
         return cls.__set_not_null_to_1_from(
             cls.__ascending_trends_from(a_series))
 
     @classmethod
-    @pd_cache
     def __set_descending_to_1_from(cls, a_series: Series):
         return cls.__set_not_null_to_1_from(
             cls.__descending_trends_from(a_series))
 
     @classmethod
-    @pd_cache
     def __number_ascending_from(cls, a_series: Series):
         return cls.__sum_consecutive_from(
             cls.__set_ascending_to_1_from(a_series))
 
     @classmethod
-    @pd_cache
     def __number_descending_from(cls, a_series: Series):
         return cls.__sum_consecutive_from(
             cls.__set_descending_to_1_from(a_series))
 
     @classmethod
-    @pd_cache
     def __sum_ascending_from(cls, a_series: Series):
         return cls.__sum_consecutive_from(
             cls.__ascending_trends_from(a_series))
 
     @classmethod
-    @pd_cache
     def __sum_descending_from(cls, a_series: Series):
         return cls.__sum_consecutive_from(
             cls.__descending_trends_from(a_series))
 
     @classmethod
-    @pd_cache
     def __sum_consecutive_from(cls, a_series):
         cumulative_sum = a_series.cumsum().fillna(method='pad')
         reset = -cumulative_sum[a_series.isnull()].diff().fillna(cumulative_sum)
@@ -246,16 +232,13 @@ class TrendShift:
         return result[0 != result.round(decimals=cls.PRECISION_DECIMALS)]
 
     @classmethod
-    @pd_cache
     def __ascending_trends_from(cls, a_series: Series):
         return a_series.mask(a_series <= 0)
 
     @classmethod
-    @pd_cache
     def __descending_trends_from(cls, a_series: Series):
         return a_series.mask(a_series >= 0)
 
     @classmethod
-    @pd_cache
     def __sma_from(cls, distance, steps_count):
         return distance / steps_count
