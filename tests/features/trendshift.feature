@@ -17,7 +17,7 @@ Feature: Trend shift reporter
     When I ask for anything not in place
     Then it transforms a copy of the input dataframe
 
-  Scenario: It counts the number of steps for any contiguous value sequence
+  Scenario: It counts the number of steps in a trend
     Given an upward shift
     And a few values with no shift
     And a downward shift
@@ -31,14 +31,14 @@ Feature: Trend shift reporter
     When I ask for the simple moving average for every trend
     Then I get a new column with the simple moving average
 
-  Scenario: It places the total difference from every trend in the first step
+  Scenario: It shows up the total difference from every trend in the first step
     Given an upward shift
     And a few values with no shift
     And a downward shift
     When I ask for the total difference from every trend
     Then I get a new column with the total difference in the first trend step and other steps to null
 
-  Scenario: It places the total number of steps from every trend in the first step
+  Scenario: It shows up the total number of steps from every trend in the first step only
     Given an upward shift
     And a few values with no shift
     And a downward shift
@@ -75,3 +75,10 @@ Feature: Trend shift reporter
     Given a noisy shift with a series of values as "1 2 2 2 4"
     When I ask for the total steps and difference from every trend with a step difference of 4
     Then I get a total difference of 3.0 with 1 upward shifts
+
+  Scenario: It counts down the number of steps in a trend
+    Given an upward shift
+    And a few values with no shift
+    And a downward shift
+    When I ask for the trend steps countdown
+    Then I get the steps countdown for every trend

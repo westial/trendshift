@@ -43,6 +43,7 @@ class TrendShift:
         self.__sma = False
         self.__diff_by_trend = False
         self.__steps_by_trend = False
+        self.__trend_countdown = False
 
     @classmethod
     def __create_target_diff(cls, df, column_name, smooth, periods):
@@ -53,7 +54,7 @@ class TrendShift:
 
     def with_numbered_steps(self):
         """
-        Building option to append a column for numbered steps into the product.
+        Building option to append a column for numbered steps for every trend.
 
         The column name is "step_number".
         """
@@ -104,6 +105,16 @@ class TrendShift:
         self.__steps_by_trend = True
         return self
 
+    def with_trend_countdown(self):
+        """
+        Building option to append a column for a countdown of the numbered
+        steps for every trend.
+
+        The column name is "trend_countdown".
+        """
+        self.__trend_countdown = True
+        return self
+
     def build(self):
         """
         Building method to create the dataframe according all building options
@@ -123,15 +134,22 @@ class TrendShift:
         if self.__steps_by_trend:
             self.__df["trend_steps"] = \
                 self.count_trend_steps_from(self.__target_diff)
+        if self.__trend_countdown:
+            self.__df["trend_countdown"] = \
+                self.countdown_trend_steps_from(self.__target_diff)
         return self.__df
 
     @classmethod
     def count_trend_steps_from(cls, a_series: Series):
-        return cls.__create_total_column(a_series, cls.__count_reversed_from)
+        return cls.__involute_total_trend(a_series, cls.__count_reversed_from)
+
+    @classmethod
+    def countdown_trend_steps_from(cls, a_series: Series):
+        return cls.__involute_trend_transition(a_series, cls.__count_reversed_from)
 
     @classmethod
     def total_trend_diff_from(cls, a_series: Series):
-        return cls.__create_total_column(a_series, cls.__sum_reversed_from)
+        return cls.__involute_total_trend(a_series, cls.__sum_reversed_from)
 
     @classmethod
     def __sum_reversed_from(cls, a_series: Series):
@@ -146,12 +164,22 @@ class TrendShift:
         ).sort_index(ascending=True)
 
     @classmethod
-    def __create_total_column(cls, a_series: Series, callback: callable):
+    def __involute_total_trend(cls, a_series: Series, callback: callable):
+        sandbox = cls.__involute(a_series, callback)
+        sandbox["reversed"].loc[sandbox["count"] != 1] = np.nan
+        return sandbox["reversed"]
+
+    @classmethod
+    def __involute_trend_transition(cls, a_series: Series, callback: callable):
+        sandbox = cls.__involute(a_series, callback)
+        return sandbox["reversed"]
+
+    @classmethod
+    def __involute(cls, a_series: Series, callback: callable):
         sandbox = DataFrame(index=a_series.index)
         sandbox["count"] = cls.__number_steps_from(a_series)
         sandbox["reversed"] = callback(a_series)
-        sandbox["reversed"].loc[sandbox["count"] != 1] = np.nan
-        return sandbox["reversed"]
+        return sandbox
 
     @classmethod
     def __calculate_sma_from(cls, a_series: Series):

@@ -13,12 +13,20 @@ def __create_data_frame_with_diff(values):
 
 @given("an upward shift")
 def step_impl(context):
+    """
+    IMPORTANT: Use this step always in the first Given position, it does not
+    append other sample values, it initiates the variables.
+    This first position makes the first number to be NaN.
+    :param context:
+    :return:
+    """
     context.data_frame_values = [1, 16, 21]
     context.expected_diff_sum = [np.nan, 15, 20]
     context.expected_diff_count = [np.nan, 1, 2]
     context.expected_diff_speed = [0, 15, 10]
     context.expected_total_differences = [np.nan, 20, np.nan]
     context.expected_total_steps_count = [np.nan, 2, np.nan]
+    context.expected_trend_countdown = [np.nan, 2, 1]
 
 
 @step("a few values with no shift")
@@ -29,6 +37,7 @@ def step_impl(context):
     context.expected_diff_speed += [0, 0, 0]
     context.expected_total_differences += [np.nan, np.nan, np.nan]
     context.expected_total_steps_count += [np.nan, np.nan, np.nan]
+    context.expected_trend_countdown += [0, 0, 0]
 
 
 @step("a downward shift")
@@ -39,6 +48,7 @@ def step_impl(context):
     context.expected_diff_speed += [-1, -2, -3]
     context.expected_total_differences += [-11, np.nan, np.nan]
     context.expected_total_steps_count += [3, np.nan, np.nan]
+    context.expected_trend_countdown += [3, 2, 1]
     context.data_frame = __create_data_frame_with_diff(
         context.data_frame_values)
 
@@ -231,3 +241,18 @@ def step_impl(context, periods):
         .with_difference_by_trend()\
         .with_steps_by_trend()\
         .build()
+
+
+@when("I ask for the trend steps countdown")
+def step_impl(context):
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_trend_countdown()\
+        .build()
+
+
+@then("I get the steps countdown for every trend")
+def step_impl(context):
+    assert np.array_equal(
+        np.array(context.expected_trend_countdown).astype(int),
+        np.array(context.result["trend_countdown"]).astype(int)
+    )
