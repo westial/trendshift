@@ -44,6 +44,7 @@ class TrendShift:
         self.__diff_by_trend = False
         self.__steps_by_trend = False
         self.__trend_countdown = False
+        self.__remaining_difference = False
 
     @classmethod
     def __create_target_diff(cls, df, column_name, smooth, periods):
@@ -115,6 +116,16 @@ class TrendShift:
         self.__trend_countdown = True
         return self
 
+    def with_remaining_difference(self):
+        """
+        Building option to append a column for the difference between the
+        current step in a trend and the end of the trend.
+
+        The column name is "remaining".
+        """
+        self.__remaining_difference = True
+        return self
+
     def build(self):
         """
         Building method to create the dataframe according all building options
@@ -137,6 +148,9 @@ class TrendShift:
         if self.__trend_countdown:
             self.__df["trend_countdown"] = \
                 self.countdown_trend_steps_from(self.__target_diff)
+        if self.__remaining_difference:
+            self.__df["remaining"] = \
+                self.remaining_trend_diff_from(self.__target_diff)
         return self.__df
 
     @classmethod
@@ -145,11 +159,24 @@ class TrendShift:
 
     @classmethod
     def countdown_trend_steps_from(cls, a_series: Series):
-        return cls.__involute_trend_transition(a_series, cls.__count_reversed_from)
+        return cls.__involute_trend_transition(
+            a_series,
+            cls.__count_reversed_from)
 
     @classmethod
     def total_trend_diff_from(cls, a_series: Series):
         return cls.__involute_total_trend(a_series, cls.__sum_reversed_from)
+
+    @classmethod
+    def remaining_trend_diff_from(cls, a_series: Series):
+        """
+        Get the trend difference transition steps and shift up one to place the
+        difference between the current step and the next one in the current
+        step.
+        """
+        return cls.__involute_trend_transition(
+            a_series, cls.__sum_reversed_from) \
+            .shift(-1)
 
     @classmethod
     def __sum_reversed_from(cls, a_series: Series):

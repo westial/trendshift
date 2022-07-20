@@ -82,3 +82,10 @@ Feature: Trend shift reporter
     And a downward shift
     When I ask for the trend steps countdown
     Then I get the steps countdown for every trend
+
+  Scenario: It shows up the difference of the remaining steps in a trend
+    Given an upward shift
+    And a few values with no shift
+    And a downward shift
+    When I ask for the descending difference
+    Then I get the remaining difference in every trend

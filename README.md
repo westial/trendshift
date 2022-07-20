@@ -36,19 +36,20 @@ my_new_df: DataFrame = = TrendShift(input_dataframe, "target_column")\
 The snippet above over an example "input_dataframe.target_column" will output
 the following data set. "target_column" values are the original ones.
 
-|     | target_column |trends_sum|step_number|simple_moving_avg  |trend_difference|trend_steps| trend_countdown |
-|-----|---------------|----------|-----------|-------------------|----------------|-----------|-----------------|
-| 0   | 1             |          |           |0.0                |                |           |                 |
-| 1   | 16            |15.0      |1.0        |15.0               |20.0            |2.0        | 2.0             |
-| 2   | 21            |20.0      |2.0        |10.0               |                |           | 1.0             |
-| 3   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             |
-| 4   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             |
-| 5   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             |
-| 6   | 20            |-1.0      |1.0        |-1.0               |-11.0           |3.0        | 3.0             |
-| 7   | 17            |-4.0      |2.0        |-2.0               |                |           | 2.0             |
-| 8   | 10            |-11.0     |3.0        |-3.6666666666666665|                |           | 1.0             |
+|     | target_column |trends_sum|step_number|simple_moving_avg  |trend_difference|trend_steps| trend_countdown | remaining |
+|-----|---------------|----------|-----------|-------------------|----------------|-----------|-----------------|-----------|
+| 0   | 1             |          |           |0.0                |                |           |                 | 20.0      |
+| 1   | 16            |15.0      |1.0        |15.0               |20.0            |2.0        | 2.0             | 5.0       |
+| 2   | 21            |20.0      |2.0        |10.0               |                |           | 1.0             | 0.0       |
+| 3   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             | 0.0       |
+| 4   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             | 0.0       |
+| 5   | 21            |0.0       |0.0        |0.0                |                |           | 0.0             | -11.0     |
+| 6   | 20            |-1.0      |1.0        |-1.0               |-11.0           |3.0        | 3.0             | -10.0     |
+| 7   | 17            |-4.0      |2.0        |-2.0               |                |           | 2.0             | -7.0      |
+| 8   | 10            |-11.0     |3.0        |-3.6666666666666665|                |           | 1.0             |           |
 
-More information within the main interface [src/trendshift/trendshift.py](src/trendshift/trendshift.py)
+More information within the main
+interface [src/trendshift/trendshift.py](src/trendshift/trendshift.py)
 
 ## Concepts ##
 
@@ -101,6 +102,10 @@ only.
 ### Trend Countdown ###
 
 Reversed upside down cumulative *Step* count in a *Shift*.
+
+### Remaining Trend Difference ###
+
+Difference between any trend step and the step at the end of the trend.
 
 ## Test ##
 

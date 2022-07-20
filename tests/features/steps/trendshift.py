@@ -27,6 +27,7 @@ def step_impl(context):
     context.expected_total_differences = [np.nan, 20, np.nan]
     context.expected_total_steps_count = [np.nan, 2, np.nan]
     context.expected_trend_countdown = [np.nan, 2, 1]
+    context.expected_remaining_difference = [20, 5, 0]
 
 
 @step("a few values with no shift")
@@ -38,6 +39,7 @@ def step_impl(context):
     context.expected_total_differences += [np.nan, np.nan, np.nan]
     context.expected_total_steps_count += [np.nan, np.nan, np.nan]
     context.expected_trend_countdown += [0, 0, 0]
+    context.expected_remaining_difference += [0, 0, -11]
 
 
 @step("a downward shift")
@@ -49,6 +51,7 @@ def step_impl(context):
     context.expected_total_differences += [-11, np.nan, np.nan]
     context.expected_total_steps_count += [3, np.nan, np.nan]
     context.expected_trend_countdown += [3, 2, 1]
+    context.expected_remaining_difference += [-10, -7, np.nan]
     context.data_frame = __create_data_frame_with_diff(
         context.data_frame_values)
 
@@ -255,4 +258,20 @@ def step_impl(context):
     assert np.array_equal(
         np.array(context.expected_trend_countdown).astype(int),
         np.array(context.result["trend_countdown"]).astype(int)
+    )
+
+
+@when("I ask for the descending difference")
+def step_impl(context):
+    context.result = TrendShift(context.data_frame, "samples") \
+        .with_remaining_difference()\
+        .with_sum()\
+        .build()
+
+
+@then("I get the remaining difference in every trend")
+def step_impl(context):
+    assert np.array_equal(
+        np.array(context.expected_remaining_difference).astype(int),
+        np.array(context.result["remaining"]).astype(int)
     )
